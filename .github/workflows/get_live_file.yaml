@@ -34,14 +34,4 @@ jobs:
         with:
           message: 'Add airnow_aq.geojson'
           add: 'data/airnow_aq.geojson'
-          
-      - name: Update HTML with current date
-        run: |
-          currentDate=$(date +'%B %d, %Y at %I:%M %p ET')
-          sed -i "s|<div class=\"note\">Note: Data last updated .*<\/div>|<div class=\"note\">Note: Data last updated ${currentDate}<\/div>|g" index.html
-          
-      - name: Commit updated HTML
-        run: |
-          git add index.html
-          git commit -m "Update data last updated date"
-          git push
+        
