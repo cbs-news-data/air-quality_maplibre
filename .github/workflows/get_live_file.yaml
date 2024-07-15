@@ -29,14 +29,19 @@ jobs:
       - name: Copy file if no error
         run: |
           cp data/airnow_aq_raw.geojson data/airnow_aq.geojson
-          
-      - name: Update date in HTML files
-        run: |
-          DATE=$(date +"%B %d, %Y")
-          sed -i "s/<!--DATE_PLACEHOLDER-->/$DATE/" index.html
-          
-      - name: Commit changes
+      - name: Commit file
         uses: EndBug/add-and-commit@v7
         with:
-          message: 'Update airnow_aq.geojson and HTML date'
+          message: 'Add airnow_aq.geojson'
           add: 'data/airnow_aq.geojson'
+          
+      - name: Update HTML with current date
+        run: |
+          currentDate=$(date +'%B %d, %Y at %I:%M %p ET')
+          sed -i "s|<div class=\"note\">Note: Data last updated .*<\/div>|<div class=\"note\">Note: Data last updated ${currentDate}<\/div>|g" index.html
+          
+      - name: Commit updated HTML
+        run: |
+          git add index.html
+          git commit -m "Update data last updated date"
+          git push

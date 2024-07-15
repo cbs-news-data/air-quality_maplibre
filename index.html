@@ -153,10 +153,7 @@
         </div>
       </div>
       <div id="map"></div>
-      <div class="note">
-        Note: Data last updated
-        <!--DATE_PLACEHOLDER-->
-      </div>
+      <div class="note">Note: Data last updated <span id="lastUpdated"></span></div>
       <div class="source">
         Source:
         <a
@@ -227,6 +224,12 @@
             "fill-opacity": 0.6,
           },
         });
+        
+        // Set the last updated date dynamically
+        const currentDate = new Date();
+        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true, timeZone: 'America/New_York' };
+        const formattedDate = currentDate.toLocaleDateString('en-US', options);
+        document.getElementById('lastUpdated').textContent = formattedDate;
       });
     </script>
   </body>
