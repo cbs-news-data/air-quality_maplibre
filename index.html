@@ -2,8 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="https://unpkg.com/maplibre-gl@2.3.0/dist/maplibre-gl.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.css' />
+    <script src='https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.js'></script>
     <link
       rel="stylesheet"
       href="https://unpkg.com/maplibre-gl@2.3.0/dist/maplibre-gl.css"
@@ -55,9 +56,7 @@
       }
       span.legend-title {
         font-size: 16px;
-        padding-right: 10px;
         font-family: "proxima-nova", sans-serif;
-        vertical-align: text-bottom;
       }
       .legend div {
         width: 15px;
@@ -69,11 +68,11 @@
         margin-right: 5px;
         font-family: "proxima-nova", sans-serif;
         font-weight: 100;
-        vertical-align: text-bottom;
       }
       .good {
         background-color: #70bb6e;
       }
+
       .moderate {
         background-color: #fde633;
       }
@@ -91,7 +90,7 @@
       }
       .none {
         background-color: #cccccc;
-        margin-left: 20px;
+        margin-left: 15px;
       }
 
       #map {
@@ -112,6 +111,34 @@
         }
         .description {
           margin-bottom: 5px;
+        }
+        .legend {
+          display: flex;
+          align-items: center;
+          font-family: "proxima-nova", sans-serif;
+          font-size: 12px;
+          margin-bottom: 5px;
+        }
+        span.legend-title {
+          font-size: 14px;
+          /* padding-right: 5px; */
+          font-family: "proxima-nova", sans-serif;
+        }
+        .legend div {
+          width: 10px;
+          height: 10px;
+          margin-right: 2px;
+          border-radius: 2px;
+        }
+        .legend span {
+          /* margin-right: 5px; */
+          font-family: "proxima-nova", sans-serif;
+          font-weight: 100;
+          /* vertical-align: text-bottom; */
+        }
+        .none {
+          background-color: #cccccc;
+          margin-left: 5px;
         }
       }
 
@@ -136,10 +163,9 @@
           <a href="https://www.airnow.gov/aqi/aqi-basics/" target="_blank"
             >here</a
           >
-          to understand what the AQI ratings mean.
+          to understand what the Air Quality Index (AQI) ratings mean.
         </p>
         <div class="legend">
-          <span class="legend-title"><b>Air Quality Index:</b></span>
           <span>Good</span>
           <div class="good"></div>
           <div class="moderate"></div>
@@ -180,50 +206,44 @@
       // Add zoom and rotation controls to the map.
       map.addControl(new maplibregl.NavigationControl(), "top-left");
 
-      map.on("load", function () {
-        map.addSource("shapefile", {
-          type: "geojson",
-          data: "data/airnow_aq.geojson", // Replace with the path to your GeoJSON file
-        });
+      map.on('load', () => {
 
-        // Define your color palette and levels
-        const colorPalette = [
-          "#70bb6e",
-          "#fde633",
-          "#fd8724",
-          "#a5091e",
-          "#8b09a5",
-          "#876035",
-        ]; // Example colors
-        const levels = [1, 2, 3, 4, 5]; // Example levels
-        const naColor = "#cccccc"; // Example color for not available
+        const layers = map.getStyle().layers;
+        // Find the index of the first symbol layer in the map style
+        let firstSymbolId;
+        for (let i = 0; i < layers.length; i++) {
+            if (layers[i].type === 'symbol') {
+                firstSymbolId = layers[i].id;
+                break;
+            }
+        }
 
-        map.addLayer({
-          id: "shapefile-layer",
-          type: "fill",
-          source: "shapefile",
-          paint: {
+    map.addSource("shapefile", {
+        type: "geojson",
+        data: "data/airnow_aq.geojson", // Replace with the path to your GeoJSON file
+    });
+
+    map.addLayer({
+        id: "shapefile-layer",
+        type: "fill",
+        source: "shapefile",
+        paint: {
             "fill-color": [
-              "match",
-              ["get", "gridcode"],
-              1,
-              colorPalette[0], // If gridcode is 1, use the first color in the palette (green in this case)
-              2,
-              colorPalette[1], // Add more cases as needed for other gridcode values
-              3,
-              colorPalette[2],
-              4,
-              colorPalette[3],
-              5,
-              colorPalette[4],
-              6,
-              colorPalette[5],
-              naColor,
+                "match",
+                ["get", "gridcode"],
+                1, "#70bb6e",
+                2, "#fde633",
+                3, "#fd8724",
+                4, "#a5091e",
+                5, "#8b09a5",
+                6, "#876035",
+                "#cccccc"
             ],
-            "fill-opacity": 0.6,
-          },
-        });
-      });
+            "fill-opacity": 0.6
+        },
+        firstSymbolId // Use the found firstSymbolId here
+    });
+});
     </script>
   </body>
 </html>
