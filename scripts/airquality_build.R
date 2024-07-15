@@ -12,7 +12,7 @@ library(htmlwidgets)
 # Read in the air quality .geojson file
 # We're using the combined contour file, which
 # combines ozone and PM25 which is the primary measure for AQI
-air_quality <- st_read("data/airnow_aq.geojson")
+air_quality <- st_read("data/airnow_aq")
 
 # Creating a color palette for air quality levels to match AQI/AirNow's method
 airpal <- colorFactor(palette = c("#b1dbad", 
