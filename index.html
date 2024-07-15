@@ -218,32 +218,31 @@
             }
         }
 
-    map.addSource("shapefile", {
-        type: "geojson",
-        data: "data/airnow_aq.geojson", // Replace with the path to your GeoJSON file
-    });
+        map.addSource("shapefile", {
+            type: "geojson",
+            data: "data/airnow_aq.geojson", // Replace with the path to your GeoJSON file
+        });
 
-    map.addLayer({
-        id: "shapefile-layer",
-        type: "fill",
-        source: "shapefile",
-        paint: {
-            "fill-color": [
-                "match",
-                ["get", "gridcode"],
-                1, "#70bb6e",
-                2, "#fde633",
-                3, "#fd8724",
-                4, "#a5091e",
-                5, "#8b09a5",
-                6, "#876035",
-                "#cccccc"
-            ],
-            "fill-opacity": 0.6
-        },
-        firstSymbolId // Use the found firstSymbolId here
-    });
-});
+        map.addLayer({
+            id: "shapefile-layer",
+            type: "fill",
+            source: "shapefile",
+            paint: {
+                "fill-color": [
+                    "match",
+                    ["get", "gridcode"],
+                    1, "#70bb6e",
+                    2, "#fde633",
+                    3, "#fd8724",
+                    4, "#a5091e",
+                    5, "#8b09a5",
+                    6, "#876035",
+                    "#cccccc"
+                ],
+                "fill-opacity": 0.6
+            }
+        }, firstSymbolId); // Pass firstSymbolId as the second argument
+      });
     </script>
   </body>
 </html>
