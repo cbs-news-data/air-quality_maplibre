@@ -29,8 +29,14 @@ jobs:
       - name: Copy file if no error
         run: |
           cp data/airnow_aq_raw.geojson data/airnow_aq.geojson
-      - name: Commit file
+          
+      - name: Update date in HTML files
+        run: |
+          DATE=$(date +"%B %d, %Y")
+          sed -i "s/<!--DATE_PLACEHOLDER-->/$DATE/" index.html
+          
+      - name: Commit changes
         uses: EndBug/add-and-commit@v7
         with:
-          message: 'Add airnow_aq.geojson'
+          message: 'Update airnow_aq.geojson and HTML date'
           add: 'data/airnow_aq.geojson'

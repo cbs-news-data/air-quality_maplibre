@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://unpkg.com/maplibre-gl@2.3.0/dist/maplibre-gl.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/maplibre-gl@2.3.0/dist/maplibre-gl.css"
+    />
+    <style>
+      @font-face {
+        font-family: "Publico Headline";
+        src: url("fonts/PublicoHeadline-Black.woff2") format("woff2"),
+          url("fonts/PublicoHeadline-Black.woff") format("woff");
+      }
+
+      a {
+        color: rgb(130, 130, 130);
+        text-decoration: none;
+      }
+
+      a:hover {
+        cursor: pointer;
+      }
+
+      #container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+      #header {
+        z-index: 1;
+        max-width: 980px;
+      }
+      .title {
+        font-family: "Publico Headline", Georgia, serif;
+        line-height: 34px;
+        font-size: 32px;
+        color: rgb(0, 0, 0);
+      }
+      .description {
+        font-family: "proxima-nova", sans-serif;
+        font-size: 16px;
+        line-height: 1.3;
+        max-width: 980px;
+        margin-top: 12px;
+      }
+      .legend {
+        display: flex;
+        align-items: center;
+        font-family: "proxima-nova", sans-serif;
+        font-size: 14px;
+        margin-bottom: 5px;
+      }
+      span.legend-title {
+        font-size: 16px;
+        padding-right: 10px;
+        font-family: "proxima-nova", sans-serif;
+        vertical-align: text-bottom;
+      }
+      .legend div {
+        width: 15px;
+        height: 15px;
+        margin-right: 5px;
+        border-radius: 2px;
+      }
+      .legend span {
+        margin-right: 5px;
+        font-family: "proxima-nova", sans-serif;
+        font-weight: 100;
+        vertical-align: text-bottom;
+      }
+      .good {
+        background-color: #70bb6e;
+      }
+      .moderate {
+        background-color: #fde633;
+      }
+      .unhealthy-sg {
+        background-color: #fd8724;
+      }
+      .unhealthy {
+        background-color: #a5091e;
+      }
+      .very-unhealthy {
+        background-color: #8b09a5;
+      }
+      .hazardous {
+        background-color: #876035;
+      }
+      .none {
+        background-color: #cccccc;
+        margin-left: 20px;
+      }
+
+      #map {
+        flex-grow: 1;
+        max-height: 500px;
+        max-width: 980px;
+        margin-bottom: 20px;
+      }
+
+      .mapboxgl-ctrl-compass {
+        display: none !important;
+      }
+
+      /* MEDIA QUERY */
+      @media (max-width: 430px) {
+        #map {
+          max-height: 900px !important;
+        }
+        .description {
+          margin-bottom: 5px;
+        }
+      }
+
+      .note {
+        font-family: "proxima-nova", sans-serif;
+        font-size: 16px;
+      }
+
+      .source {
+        font-family: "proxima-nova", sans-serif;
+        color: rgb(130, 130, 130);
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <div id="header">
+        <div class="title">Current air quality in the U.S.</div>
+        <p class="description">
+          This map shows the current air quality in the United States. Click
+          <a href="https://www.airnow.gov/aqi/aqi-basics/" target="_blank"
+            >here</a
+          >
+          to understand what the AQI ratings mean.
+        </p>
+        <div class="legend">
+          <span class="legend-title"><b>Air Quality Index:</b></span>
+          <span>Good</span>
+          <div class="good"></div>
+          <div class="moderate"></div>
+          <div class="unhealthy-sg"></div>
+          <div class="unhealthy"></div>
+          <div class="very-unhealthy"></div>
+          <div class="hazardous"></div>
+          <span>Hazardous</span>
+          <div class="none"></div>
+          <span>No data</span>
+        </div>
+      </div>
+      <div id="map"></div>
+      <div class="note">
+        Note: Data last updated
+        <!--DATE_PLACEHOLDER-->
+      </div>
+      <div class="source">
+        Source:
+        <a
+          href="https://gispub.epa.gov/airnow/?showlegend=yes&archivedates=07%2F14%2F2024&monitors=none&boundaries=nps%2Fcounty&tab=current&basemap=imagery&showgreencontours=true&xmin=-13594901.422994448&xmax=-8311574.027924468&ymin=1022153.4939335962&ymax=9044983.982743563"
+          target="_blank"
+          >AirNow</a
+        >
+      </div>
+    </div>
+
+    <script>
+      const map = new maplibregl.Map({
+        container: "map",
+        style:
+          "https://api.maptiler.com/maps/openstreetmap/style.json?key=xSA5Jsn59rYc6po9HAQg", // Replace with your MapTiler style URL
+        center: [-98.5795, 39.8283], // Centered on the United States
+        zoom: 3.3,
+        maxZoom: 6,
+        minZoom: 2.5,
+      });
+
+      // Disable scroll zoom
+      map.scrollZoom.disable();
+
+      // Add zoom and rotation controls to the map.
+      map.addControl(new maplibregl.NavigationControl(), "top-left");
+
+      map.on("load", function () {
+        map.addSource("shapefile", {
+          type: "geojson",
+          data: "data/airnow_aq.geojson", // Replace with the path to your GeoJSON file
+        });
+
+        // Define your color palette and levels
+        const colorPalette = [
+          "#70bb6e",
+          "#fde633",
+          "#fd8724",
+          "#a5091e",
+          "#8b09a5",
+          "#876035",
+        ]; // Example colors
+        const levels = [1, 2, 3, 4, 5]; // Example levels
+        const naColor = "#cccccc"; // Example color for not available
+
+        map.addLayer({
+          id: "shapefile-layer",
+          type: "fill",
+          source: "shapefile",
+          paint: {
+            "fill-color": [
+              "match",
+              ["get", "gridcode"],
+              1,
+              colorPalette[0], // If gridcode is 1, use the first color in the palette (green in this case)
+              2,
+              colorPalette[1], // Add more cases as needed for other gridcode values
+              3,
+              colorPalette[2],
+              4,
+              colorPalette[3],
+              5,
+              colorPalette[4],
+              6,
+              colorPalette[5],
+              naColor,
+            ],
+            "fill-opacity": 0.6,
+          },
+        });
+      });
+    </script>
+  </body>
+</html>
