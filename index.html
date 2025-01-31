@@ -193,6 +193,7 @@
     </div>
   </div>
   <div id="map"></div>
+  <div class="note"></div>
   <div class="source">
     Source:
     <a
@@ -264,6 +265,47 @@
       },
       firstSymbolId
     ); // Pass firstSymbolId as the second argument
+  });
+
+  // Fetch the timestamp from the first feature in the GeoJSON
+fetch("https://raw.githubusercontent.com/cbs-news-data/air-quality_maplibre/refs/heads/main/data/airnow_aq.geojson")
+  .then(response => response.json())
+  .then(data => {
+    // Assuming that the Timestamp is stored in the "properties" of the first feature
+    const timestamp = data.features[0]?.properties?.Timestamp;
+
+    if (timestamp) {
+      // Convert Unix timestamp (milliseconds) to Date
+      const date = new Date(timestamp);
+
+      // Convert to PST (GMT-8)
+      const options = {
+        timeZone: "America/Los_Angeles",
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
+      };
+
+      let formattedDate = date.toLocaleString("en-US", options);
+
+      // Replace "AM" and "PM" with "a.m." and "p.m."
+      formattedDate = formattedDate.replace("AM", "a.m.").replace("PM", "p.m.");
+
+      // Format as "Jan 8 at 10:00 a.m. PST"
+      const dateParts = formattedDate.split(',');  // Split to separate date and time
+      const finalFormattedDate = `${dateParts[1].trim()} at ${dateParts[2]} PST`;
+
+      // Update the note with the formatted timestamp
+      document.querySelector('.note').innerHTML = `Note: Data as of ${finalFormattedDate}.`;
+    } else {
+      document.querySelector('.note').innerHTML = 'Timestamp data not available.';
+    }
+  })
+  .catch(error => {
+    console.error("Error fetching GeoJSON:", error);
   });
 
   document.addEventListener("DOMContentLoaded", function () {
